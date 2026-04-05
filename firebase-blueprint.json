@@ -1,0 +1,143 @@
+{
+  "entities": {
+    "School": {
+      "title": "School",
+      "description": "A school registered on the platform",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Name of the school" },
+        "address": { "type": "string", "description": "Physical address" },
+        "phone": { "type": "string", "description": "Contact phone number" },
+        "email": { "type": "string", "description": "Official school email" },
+        "logoUrl": { "type": "string", "description": "URL to school logo" },
+        "signatureUrl": { "type": "string", "description": "URL to principal's signature" },
+        "stampUrl": { "type": "string", "description": "URL to school stamp" },
+        "subscriptionPlan": { "type": "string", "enum": ["basic", "standard", "premium"] },
+        "subscriptionStatus": { "type": "string", "enum": ["active", "expired", "trialing"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "subscriptionPlan"]
+    },
+    "User": {
+      "title": "User",
+      "description": "A staff member (admin or teacher) or super admin",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "name": { "type": "string", "description": "Full name" },
+        "email": { "type": "string", "description": "Email address" },
+        "role": { "type": "string", "enum": ["super-admin", "school-admin", "teacher"] },
+        "schoolId": { "type": "string", "description": "ID of the school they belong to" },
+        "classIds": { "type": "array", "items": { "type": "string" }, "description": "Classes assigned to teacher" },
+        "subjectIds": { "type": "array", "items": { "type": "string" }, "description": "Subjects taught by teacher" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "name", "email", "role"]
+    },
+    "Class": {
+      "title": "Class",
+      "description": "A class level in a school",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Class name (e.g., JSS1)" },
+        "schoolId": { "type": "string", "description": "School ID" },
+        "teacherId": { "type": "string", "description": "Class teacher's user ID" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "schoolId"]
+    },
+    "Subject": {
+      "title": "Subject",
+      "description": "A subject taught in the school",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Subject name (e.g., Mathematics)" },
+        "schoolId": { "type": "string", "description": "School ID" },
+        "classId": { "type": "string", "description": "Class ID" },
+        "teacherId": { "type": "string", "description": "Teacher ID" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "schoolId", "classId"]
+    },
+    "Student": {
+      "title": "Student",
+      "description": "A student enrolled in a school",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Full name" },
+        "admissionNo": { "type": "string", "description": "Unique admission number" },
+        "schoolId": { "type": "string", "description": "School ID" },
+        "classId": { "type": "string", "description": "Current class ID" },
+        "gender": { "type": "string", "enum": ["male", "female"] },
+        "dateOfBirth": { "type": "string", "format": "date" },
+        "guardianName": { "type": "string" },
+        "guardianPhone": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "inactive", "graduated"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "admissionNo", "schoolId", "classId"]
+    },
+    "Result": {
+      "title": "Result",
+      "description": "Academic result for a student in a specific term",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "schoolId": { "type": "string" },
+        "classId": { "type": "string" },
+        "session": { "type": "string" },
+        "term": { "type": "string" },
+        "scores": { 
+          "type": "array", 
+          "items": { 
+            "type": "object",
+            "properties": {
+              "subjectId": { "type": "string" },
+              "caScore": { "type": "number" },
+              "examScore": { "type": "number" },
+              "total": { "type": "number" },
+              "grade": { "type": "string" }
+            }
+          }
+        },
+        "studentAverage": { "type": "number" },
+        "classPosition": { "type": "number" },
+        "totalStudentsInClass": { "type": "number" },
+        "teacherComment": { "type": "string" },
+        "principalComment": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["studentId", "schoolId", "classId", "session", "term"]
+    },
+    "Attendance": {
+      "title": "Attendance",
+      "description": "Daily attendance record",
+      "type": "object",
+      "properties": {
+        "schoolId": { "type": "string" },
+        "classId": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "studentId": { "type": "string" },
+              "status": { "type": "string", "enum": ["present", "absent", "late"] }
+            }
+          }
+        }
+      },
+      "required": ["schoolId", "classId", "date"]
+    }
+  },
+  "firestore": {
+    "/schools/{schoolId}": { "schema": "School", "description": "School details" },
+    "/users/{userId}": { "schema": "User", "description": "User profiles" },
+    "/classes/{classId}": { "schema": "Class", "description": "Class levels" },
+    "/subjects/{subjectId}": { "schema": "Subject", "description": "Subjects" },
+    "/students/{studentId}": { "schema": "Student", "description": "Student records" },
+    "/results/{resultId}": { "schema": "Result", "description": "Academic results" },
+    "/attendance/{attendanceId}": { "schema": "Attendance", "description": "Attendance logs" }
+  }
+}
